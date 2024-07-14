@@ -166,13 +166,13 @@ const customKeplr = computed(() => {
 <template>
     <div class="mb-4">
         <!-- modal btn -->
-        <div v-if="connected.cosmosAddress" class="dropdown dropdown-hover ping-connect-dropdown">
+        <div v-if="connected.cosmosAddress" class="dropdown dropdown-hover ping-connect-dropdown ">
             <label tabindex="0" class="btn btn-sm m-1 lowercase">{{ connected.wallet }}-{{
             connected.cosmosAddress?.substring(
                 connected.cosmosAddress?.length - 4
             )
         }}</label>
-            <div tabindex="0" class="dropdown-content menu shadow p-2 bg-base-100 rounded w-64 overflow-auto">
+            <div tabindex="0" class="dropdown-content menu shadow p-2 bg-base-100 rounded-md w-64 overflow-auto">
                 <div class="px-2 mb-1 text-gray-500 dark:text-gray-400 font-semibold flex justify-between">
                     <span class="text-lg"> {{ connected.wallet }} </span>
                     <span class="ml-2 text-xs mt-2">
@@ -216,7 +216,7 @@ const customKeplr = computed(() => {
             </div>
         </div>
         <label v-if="!connected.cosmosAddress" for="PingConnectWallet"
-            class="btn btn-sm ping-connect-btn capitalize">Connect Wallet</label>
+            class="btn glass btn-sm ping-connect-btn capitalize rounded-md">Connect Wallet</label>
 
         <!-- modal content -->
         <input v-model="open" type="checkbox" id="PingConnectWallet" class="modal-toggle" @change="initData()" />
@@ -248,7 +248,7 @@ const customKeplr = computed(() => {
                     <label class="btn mr-1" @click="keplr">
                         <Icon icon="mdi:cog-outline" />
                     </label>
-                    <label class="btn btn-primary ping-connect-confirm grow" @click="connect()">
+                    <label class="btn glass rounded-md ping-connect-confirm grow" @click="connect()">
                         <span v-if="sending" class="loading loading-spinner"></span>
                         Connect
                     </label>

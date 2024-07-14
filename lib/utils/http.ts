@@ -47,7 +47,11 @@ function findField(obj: any, name: string) {
     return undefined
 }
 
-// /cosmos/base/tendermint/v1beta1/blocks/latest
+export async function getEndpoint(endpoint: string){
+    const url = `${endpoint}`
+    return get(url)
+}
+
 export async function getLatestBlock(endpoint: string){
     const url = `${endpoint}/cosmos/base/tendermint/v1beta1/blocks/latest`
     return get(url)
@@ -86,6 +90,10 @@ export async function getIBCDenomMetadata(denom: string): Promise<CoinMetadata> 
 
 export async function getCoinMetadata(endpoint: string, denom: string) {
     const url = `${endpoint}/cosmos/bank/v1beta1/denoms_metadata/${denom}`
+    return get(url)
+}
+export async function getInitiaMetadata(endpoint: string, denom: string) {
+    const url = `${endpoint}/initia/move/v1/metadata?denom=${denom}`
     return get(url)
 }
 

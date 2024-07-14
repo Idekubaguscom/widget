@@ -1,8 +1,6 @@
-import { EncodeObject } from '@cosmjs/proto-signing';
-//import { type EncodeObject } from "@initia/utils";
-//import { SignerData} from "@initia/initia.js"
-import { SignerData } from '@cosmjs/stargate';
-import { StdFee } from '@cosmjs/amino';
+//import { EncodeObject } from '@cosmjs/proto-signing';
+import { SignerData, StdFee } from '@cosmjs/stargate';
+import { EncodeObject } from '@initia/utils';
 import type { App, Plugin } from 'vue';
 export const withInstall = <T>(comp: T) => {
   const c = comp as any;
@@ -43,6 +41,20 @@ export interface TxResponse {
   data: string,
   raw_log: string,
 }
+export interface DeliverTxResponse {
+  readonly height: number;
+  readonly txIndex: number;
+  readonly code: number;
+  readonly transactionHash: string;
+  readonly events: readonly Event[];
+  readonly rawLog?: string;
+  readonly msgResponses: Array<{
+      readonly typeUrl: string;
+      readonly value: Uint8Array;
+  }>;
+  readonly gasUsed: bigint;
+  readonly gasWanted: bigint;
+}
 
 export interface Transaction { 
   chainId: string; 
@@ -50,7 +62,12 @@ export interface Transaction {
   messages: readonly EncodeObject[]; 
   fee: StdFee; 
   memo: string; 
-  signerData: SignerData 
+  signerData: SignerData;
+  gas?: string;
+  bodyBytes: Uint8Array;
+  authInfoBytes: Uint8Array;
+  signatures: Uint8Array[];
+  BroadcastMode: BroadcastMode;
 }
 
 export enum BroadcastMode {

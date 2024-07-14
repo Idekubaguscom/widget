@@ -10,24 +10,29 @@ import { BroadcastMode, Transaction, TxResponse } from "../utils/type";
 import { wasmTypes } from "@cosmjs/cosmwasm-stargate/build/modules";
 import { makeAuthInfoBytes, makeSignDoc, TxBodyEncodeObject } from "@cosmjs/proto-signing/build";
 import { Any } from "cosmjs-types/google/protobuf/any";
-
+import { TimeoutError, createAminoTypes, createRegistry, defined, getRPC } from "@initia/utils"
 export function isEthermint(chainId: string) {
   return chainId.search(/\w+_\d+-\d+/g) > -1
 }
 
+
 export class UniClient {
     registry: Registry
     wallet: AbstractWallet
+    aminoTypes: any;
+    createAminoConverters = createAminoTypes()
     constructor(name: WalletName, arg: WalletArgument) {
-        this.registry = new Registry([...defaultRegistryTypes, ...wasmTypes])
-        this.wallet = createWallet(name, arg, this.registry)
+      this.registry = createRegistry();
+      //this.registry = new Registry([...defaultRegistryTypes, ...wasmTypes])
+      this.wallet = createWallet(name, arg, this.registry)
+      this.aminoTypes = createAminoTypes();
     }
 
     async getAccounts() {
         return this.wallet.getAccounts()
     }
 
-    async sign(transaction: Transaction): Promise<TxRaw> {
+    async sign(transaction: Transaction): Promise<TxRaw | TxResponse> {
         // const { signature, signed } = await this.wallet.sign(transaction);
         // return TxRaw.fromPartial({
         //     bodyBytes: signed.bodyBytes,
@@ -36,11 +41,12 @@ export class UniClient {
         // });
         return this.wallet.sign(transaction)
     }
-    
+/** */    
     async simulate (
         endpoint: string,
         transaction: Transaction,
-        mode: BroadcastMode = BroadcastMode.SYNC
+        mode: BroadcastMode = BroadcastMode.SYNC,
+        
       ) {
 
         const pubkey = Any.fromPartial({
@@ -87,44 +93,44 @@ export class UniClient {
         })
     }
 
-    // async simulate2(
-    //     endpoint: string, 
-    //     messages: readonly EncodeObject[],
-    //     memo: string | undefined,
-    //     sequence: number
-    // ) {
+   /**   async simulate2(
+         endpoint: string, 
+         messages: readonly EncodeObject[],
+         memo: string | undefined,
+         sequence: number
+     ) {
         
-    //     const [first] = await this.wallet.getAccounts()
-    //     const pubkey = encodeSecp256k1Pubkey(first.pubkey);
-    //     const anyMsgs = messages.map((m) => this.registry.encodeAsAny(m));
-    //     const url = `${endpoint}/cosmos/tx/v1beta1/simulate`
-    //     const tx = Tx.fromPartial({
-    //         authInfo: AuthInfo.fromPartial({
-    //           fee: Fee.fromPartial({}),
-    //           signerInfos: [
-    //             {
-    //               publicKey: encodePubkey(pubkey),
-    //               sequence: sequence,
-    //               modeInfo: { single: { mode: SignMode.SIGN_MODE_UNSPECIFIED } },
-    //             },
-    //           ],
-    //         }),
-    //         body: TxBody.fromPartial({
-    //           messages: Array.from(anyMsgs),
-    //           memo: memo,
-    //         }),
-    //         signatures: [new Uint8Array()],
-    //       });
-    //     const request = SimulateRequest.fromPartial({
-    //         tx
-    //         // txBytes: Tx.encode(tx).finish(),
-    //     });
-    //     console.log(tx, request)
-    //     return await post(url, request)
-    // }
+         const [first] = await this.wallet.getAccounts()
+         const pubkey = encodeSecp256k1Pubkey(first.pubkey);
+         const anyMsgs = messages.map((m) => this.registry.encodeAsAny(m));
+         const url = `${endpoint}/cosmos/tx/v1beta1/simulate`
+         const tx = Tx.fromPartial({
+             authInfo: AuthInfo.fromPartial({
+               fee: Fee.fromPartial({}),
+               signerInfos: [
+                 {
+                   publicKey: encodePubkey(pubkey),
+                   sequence: sequence,
+                   modeInfo: { single: { mode: SignMode.SIGN_MODE_UNSPECIFIED } },
+                 },
+               ],
+             }),
+             body: TxBody.fromPartial({
+               messages: Array.from(anyMsgs),
+               memo: memo,
+             }),
+             signatures: [new Uint8Array()],
+           });
+         const request = SimulateRequest.fromPartial({
+             tx
+             // txBytes: Tx.encode(tx).finish(),
+         });
+         console.log(tx, request)
+         return await post(url, request)
+     }
+*/
 
-
-  async broadcastTx(endpoint, bodyBytes: TxRaw, mode: BroadcastMode = BroadcastMode.SYNC) : Promise<{tx_response: TxResponse}> {
+  async broadcastTx(endpoint: string, bodyBytes: TxRaw, mode: BroadcastMode = BroadcastMode.SYNC) : Promise<{tx_response: TxResponse}> {
     // const txbytes = bodyBytes.authInfoBytes ? TxRaw.encode(bodyBytes).finish() : bodyBytes
     const txbytes = TxRaw.encode(bodyBytes).finish() 
     const txString = toBase64(txbytes)
@@ -142,4 +148,5 @@ export class UniClient {
       return res
     })
   }
+
 }

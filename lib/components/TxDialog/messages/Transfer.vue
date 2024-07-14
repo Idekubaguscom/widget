@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { ComputedRef, PropType, computed, onMounted, ref } from 'vue';
-import { getStakingParam, getDenomTraces } from '../../../utils/http';
+import { getBalance, getDenomTraces } from '../../../utils/http';
 import { Coin, CoinMetadata } from '../../../utils/type';
 import ChainRegistryClient from '@ping-pub/chain-registry-client';
 import { IBCPath } from '@ping-pub/chain-registry-client/dist/types';
@@ -229,7 +229,7 @@ defineExpose({ msgs, isValid, initial });
             <label class="label">
                 <span class="label-text">Amount</span>
                 <span>
-                    {{ available.display.amount}} {{ formatDenom(available.display.denom) }}
+                    {{ available?.display.amount}} {{ formatDenom(available?.display.denom) }}
                 </span>
             </label>
             <label class="input-group">

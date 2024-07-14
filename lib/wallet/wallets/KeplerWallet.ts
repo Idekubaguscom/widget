@@ -34,7 +34,8 @@ export class KeplerWallet implements AbstractWallet {
             throw new Error('Please install keplr extension')
         }
         this.registry = createRegistry();
-        this.conf = arg
+        this.conf = arg;
+        this.name = WalletName.Keplr;
     }
     
     
@@ -128,7 +129,7 @@ export class KeplerWallet implements AbstractWallet {
         const { signature, signed } = await offlineSigner.signAmino(tx.signerAddress, signDoc);
 
         const signedTxBody = {
-            messages: signed.msgs.map((msg) => this.aminoTypes.fromAmino(msg)),
+            messages: signed.msgs.map((msg: any) => this.aminoTypes.fromAmino(msg)),
             memo: signed.memo,
         };
         const signedTxBodyEncodeObject: TxBodyEncodeObject = {

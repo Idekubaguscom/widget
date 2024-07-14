@@ -1,7 +1,7 @@
 {
-    "name": "ping-widget",
+    "name": "@idekubagus/widget",
     "private": false,
-    "version": "0.3.8",
+    "version": "0.3.9",
     "type": "module",
     "main": "dist/ping-widget.js",
     "author": {
@@ -41,7 +41,6 @@
         "@ethersproject/hash": "5.7.0",
         "@ethersproject/signing-key": "5.7.0",
         "@initia/initia.js": "0.2.7",
-        "@initia/initia.proto": "^0.2.0",
         "@initia/utils": "0.69.0",
         "@leapwallet/cosmos-snap-provider": "^0.1.21",
         "@ledgerhq/hw-transport-web-ble": "^6.27.13",

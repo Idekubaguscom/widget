@@ -8,8 +8,8 @@ import { MetamaskSnapWallet } from './wallets/MetamaskSnapWallet';
 import { LeapWallet } from './wallets/LeapWallet';
 import { OKXWallet } from "./wallets/OKXWallet";
 import { UnisatWallet } from "./wallets/UnisatWallet";
-import { InitiaSigner } from './wallets/InitiaWallet';
-import type { Chain } from "@initia/initia-registry-types";
+import { InitiaWallet } from './wallets/InitiaWallet';
+
 
 
 export enum WalletName {
@@ -59,6 +59,7 @@ export interface WalletArgument {
     name?: string,
     transport?: string
     prefix?: string,
+    endpoint?: string;
 }
 
 export interface AbstractWallet {
@@ -121,7 +122,7 @@ export function createWallet(name: WalletName, arg: WalletArgument, registry?: R
         case WalletName.Keplr:
             return new KeplerWallet(arg, reg)
         case WalletName.Initia:
-            return new InitiaSigner(arg, reg, chain as IChain)
+            return new InitiaWallet(arg, <IChain>chain, reg)
         case WalletName.Ledger:
             return new LedgerWallet(arg, reg)
         case WalletName.Leap:

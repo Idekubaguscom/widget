@@ -12,7 +12,6 @@ import {
 import { BroadcastMode, Coin, CoinMetadata } from '../../utils/type';
 import { WalletName, readWallet } from '../../../lib/wallet/Wallet';
 import { UniClient } from '../../../lib/wallet/UniClient';
-import { estimateGas } from '../../utils/BaseSigner'; // Adjust the path as necessary
 
 // cosmos sdk messages
 import Delegate from './messages/Delegate.vue';
@@ -98,9 +97,9 @@ const msgBox = ref({
     isValid: { ok: false, error: '' },
     initial: function () { },
 });
-const feeAmount = ref(5000);
+const feeAmount = ref(2000);
 const feeDenom = ref('');
-const gasInfo = ref(900000);
+const gasInfo = ref(200000);
 const memo = ref('');
 const chainId = ref('cosmoshub-4');
 // const chainId = ref('taproot-1');
@@ -208,7 +207,7 @@ async function sendTx() {
         if(!advance.value) {
             await client.simulate(props.endpoint, tx, broadcast.value).then(gas => {
                 // update tx gas
-                tx.fee.gas = Math.ceil(gas * 1.25).toString();
+                tx.fee.gas = (gas * 1.25).toFixed()
             }).catch(() => {
                 // sending.value = false;
                 // error.value = "Failed to simulate tx gas: " + err;
@@ -217,21 +216,35 @@ async function sendTx() {
         } else {
             tx.fee.gas = gasInfo.value.toString()
         }
+        //==============================================================================
+        if (wallet === WalletName.Initia) {
+            const response = await client.sign(tx);
+            hash.value = response.txhash
+            showResult(response.txhash);
 
-        const txRaw = await client.sign(tx);
-        const response = await client.broadcastTx(props.endpoint, txRaw, broadcast.value);
-        // show submitting view
-        hash.value = response.tx_response.txhash
-        showResult(response.tx_response.txhash);
+            emit('submited', {
+                hash: response.txhash,
+                eventType: props.type,
+            });   
+        } else {
+            const txRaw = await client.sign(tx);
+            const response = await client.broadcastTx(props.endpoint, txRaw, broadcast.value);
+            hash.value = response.tx_response.txhash
+            showResult(response.tx_response.txhash);
 
-        emit('submited', {
-            hash: response.tx_response.txhash,
-            eventType: props.type,
-        });
+            emit('submited', {
+                hash: response.tx_response.txhash,
+                eventType: props.type,
+            }); 
+        }
+        //==============================================================================
     } catch (e) {
         sending.value = false;
         error.value = String(e);
     }
+
+
+    
 }
 
 function viewTransaction() {
@@ -286,7 +299,7 @@ function fetchTx(tx: string) {
 }
 </script>
 <template>
-    <div class="text-gray-600">
+    <div class="text-gray-600 rounded-lg">
         <!-- Put this part before </body> tag -->
         <input v-model="open" type="checkbox" :id="type" class="modal-toggle" @change="initData()" />
         <label :for="type" class="modal cursor-pointer">
@@ -296,7 +309,7 @@ function fetchTx(tx: string) {
                     {{ showTitle() }}
                 </h3>
 
-                <div v-if="!sender" class="text-center h-16 items-center">
+                <div v-if="!sender" class="text-center h-16 items-center rounded-md">
                     No wallet connected!
                 </div>
 
@@ -369,7 +382,7 @@ function fetchTx(tx: string) {
                                     class="checkbox checkbox-sm checkbox-primary mr-2" /><label :for="`${type}-advance`"
                                     class="cursor-pointer dark:text-gray-400">Advance</label>
                             </div>
-                            <button class="btn btn-primary" @click="sendTx()" :disabled="sending">
+                            <button class="btn glass rounded-lg" @click="sendTx()" :disabled="sending">
                                 <span v-if="sending" class="loading loading-spinner"></span>
                                 Send
                             </button>
@@ -378,10 +391,10 @@ function fetchTx(tx: string) {
 
                     <div v-if="view === 'submitting'">
                         <div class="my-10">
-                            <div v-if="error" class="my-5 text-center text-red-500">
+                            <div v-if="error" class="my-5 text-center text-red-500 rounded-md">
                                 {{ error }}
                             </div>
-                            <div v-else class="my-5 text-center text-lg text-green-500">
+                            <div v-else class="my-5 text-center text-lg text-green-500 rounded-md">
                                 {{ msg }}
                             </div>
                             <div class="overflow-hidden h-5 mb-2 text-xs flex rounded bg-green-100">
